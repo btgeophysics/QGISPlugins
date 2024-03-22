@@ -39,24 +39,22 @@ class AutoStyler:
                         print(f"Style applied to vector layer {layer_name} from {qml_file}")
                         break  # Stop after applying the first matching style
             elif layer.type() == QgsMapLayer.RasterLayer:
-                style_applied = False
-                # Specific logic for raster layers based on name substrings
-                if 'tearly' in layer_name:
-                    style_path = os.path.join(style_directory, 'raster_style_tearly.qml')
-                    style_applied = layer.loadNamedStyle(style_path)
-                    layer.triggerRepaint()
-                    print(f"Style 'tearly' applied to raster layer {layer_name}")
-                elif 'raw' in layer_name:
-                    style_path = os.path.join(style_directory, 'raster_style_raw.qml')
-                    style_applied = layer.loadNamedStyle(style_path)
-                    layer.triggerRepaint()
-                    print(f"Style 'raw' applied to raster layer {layer_name}")
-
-                if style_applied:
-                    # Set the 'Additional no data value' to 0.0 for all bands
-                    provider = layer.dataProvider()
-                    for band in range(1, layer.bandCount() + 1):
-                        provider.setNoDataValue(band, 0.0)
-                    layer.triggerRepaint()
-                    print(f"Style applied to raster layer {layer_name}, and no data value set to 0.0")
+                qml_files = glob.glob(os.path.join(style_directory, 'raster_style_*.qml'))
+                for qml_file in qml_files:
+                    # Extract the meaningful part of the QML filename
+                    qml_basename = os.path.splitext(os.path.basename(qml_file))[0]
+                    style_identifier = qml_basename.replace('raster_style_', '')
+                    
+                    # Check if the style identifier is in the layer name
+                    if style_identifier in layer_name:
+                        layer.loadNamedStyle(qml_file)
+                        layer.triggerRepaint()
+                        print(f"Style based on {style_identifier} applied to raster layer {layer_name}")
+                        
+                        # Set the 'Additional no data value' to 0.0 for all bands
+                        provider = layer.dataProvider()
+                        for band in range(1, layer.bandCount() + 1):
+                            provider.setNoDataValue(band, 0.0)
+                        print(f"No data value set to 0.0 for {layer_name}")
+                        break  # Stop after applying the first matching style
 

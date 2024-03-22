@@ -1,8 +1,13 @@
 [general]
 name=AutoStyler
 description=Apply QML style files to new layers.
+    QML files are stored in {qgis_home}\Styles directory.
+    QML files will be applied to a vector layer when the QML file's basename 
+    is found as a substring of the new layer's name.
+    QML files will be applied to a raster layer when the QML file's label token 
+    is found as a substring of the new layer's name. The label token is raster_style_{label}.qml.
 about=This plugin was developed by Black Tusk Geophysics (BTG) for use with their projects.
-version=1.0
+version=1.1
 qgisMinimumVersion=3.0
 author=BTG
 email=info@btgeophysics.com
