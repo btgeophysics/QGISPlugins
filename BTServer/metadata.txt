@@ -1,0 +1,9 @@
+[general]
+name=BTServer
+description=Server for accepting remote commands to QGIS
+about=This plugin was developed by Black Tusk Geophysics (BTG) for use with BTField and UXOLab Sofware.
+version=1.0
+qgisMinimumVersion=3.0
+author=BTG
+email=info@btgeophysics.com
+repository=URL to the code repository
