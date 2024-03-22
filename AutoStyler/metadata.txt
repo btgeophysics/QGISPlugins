@@ -1,0 +1,11 @@
+[general]
+name=AutoStyler
+description=Apply QML style files to new layers.
+about=This plugin was developed by Black Tusk Geophysics (BTG) for use with their projects.
+version=1.0
+qgisMinimumVersion=3.0
+author=BTG
+email=info@btgeophysics.com
+repository=https://github.com/btgeophysics/QGISPlugins
+tracker=https://github.com/btgeophysics/QGISPlugins/issues
+homepage=https://github.com/btgeophysics/QGISPlugins
