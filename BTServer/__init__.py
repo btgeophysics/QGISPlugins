@@ -50,6 +50,7 @@ class BTServerPlugin:
         self.iface = iface
         self.thread = None
         self.worker = None
+        self.server_running = False  # Add a flag to track the server state
 
     def initGui(self):
         self.action = QAction('Go!', self.iface.mainWindow())
@@ -61,25 +62,37 @@ class BTServerPlugin:
         del self.action
 
     def run(self):
+        if not self.server_running:
+            # Server is not running, start it
+            self.server_running = True  # Update the flag
+            self.thread = QThread()
+            self.worker = ServerWorker()  # Assume ServerWorker is defined elsewhere or use Worker
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.worker.finished.connect(self.thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.thread.finished.connect(self.thread.deleteLater)
+            self.worker.cmdevt.connect(cmdEvent)
+            self.worker.finished.connect(eventCompleted)
+            self.worker.finished.connect(self.serverStopped)  # Connect to a method to update server state
 
-        # daemon = Thread(target=start,args = (self.event,payload,), daemon=True, name='BTServer')
-        # daemon.start()
-        self.thread = QThread()
-        self.worker = ServerWorker()
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit) # quit thread when worker finishes work
-        self.worker.finished.connect(self.worker.deleteLater) # delete worker objects when work is done
-        self.thread.finished.connect(self.thread.deleteLater) # delete thread objects when work is done
-        self.worker.cmdevt.connect(cmdEvent)
-        # self.worker.progress.connect(waitForEvent)
-        self.worker.finished.connect(eventCompleted)
+            self.thread.start()
 
-        self.thread.start()
+            QMessageBox.information(None, 'BTServer plugin', 'Background server has been started')
+        else:
+            # Server is running, request to stop it
+            if self.worker:
+                self.worker.stop()  # Gracefully request the worker to stop
+            if self.thread.isRunning():
+                self.thread.quit()  # Request the thread to quit
+                self.thread.wait()  # Wait for the thread to finish, should not hang now
 
+            self.server_running = False
+            QMessageBox.information(None, 'BTServer plugin', 'Background server has been stopped')
 
-        QMessageBox.information(None, 'BTServer plugin', 'Background server has been started')
-
+    def serverStopped(self):
+        self.server_running = False  # Update the flag when the server stops
+        QMessageBox.information(None, 'BTServer plugin', 'Server has been stopped')
 
 class Worker(QObject):
     finished = pyqtSignal()
